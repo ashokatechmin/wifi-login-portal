@@ -1,0 +1,121 @@
+:root {
+	--color-primary: rgb(39, 62, 114);
+	--color-primary2: rgb(255, 255, 255);
+	--color-secondary: rgb(143, 9, 31);
+	--color-tertiary: rgb(90, 90, 90);
+}
+body {
+
+	margin: 0;
+	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+	  'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+	  sans-serif;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+h3 {
+	padding: 0;
+	margin: 0;
+}
+
+.flex-col {
+	display: flex;
+	flex-direction: column;
+}
+.flex-space {
+	display: flex;
+	justify-content: space-between;
+	position: relative;
+}
+.App {
+	position: absolute;
+	left: 0;
+	right: 0;
+	top: 0;
+	bottom: 0;
+	align-items: center;
+	justify-content: center;
+}
+.login-card {
+	/*min-width: min(22rem, 100vw);
+	background: var(--color-primary2);
+	box-shadow: 0px 0px 20px 1px rgba(107, 107, 107, 0.356);*/
+	min-width: min(23rem, 100%);
+	border-radius: 0.2rem;
+	padding: 1.2rem;
+	
+}
+.title {
+	display: flex;
+	width: 100%;
+	align-items: center;
+	justify-content: center;
+}
+.title img {
+	border-radius: 50%;
+	width: 5rem;
+	height: 5rem;
+}
+.heading {
+	font-size: 2rem;
+	font-weight: bold;
+	color: var(--color-primary);
+}
+.footnote {
+	color: var(--color-tertiary);
+	font-size: 0.9rem;
+}
+
+.vertical-margin > * {
+	margin-bottom: 2.4rem;
+}
+.vertical-margin > :last-child {
+	margin-bottom: 0 !important;
+}
+.overall-margin > * {
+	margin: 0.6rem 0.4rem;
+}
+.text-input {
+	font-size: 1.2rem;
+	background-color: transparent;
+	border: none;
+	border-bottom: 1px solid var(--color-primary);
+	border-radius: 0;
+	border-bottom-left-radius: 8%;
+	padding: 0.5rem;
+}
+.text-input::placeholder {
+	color: var(--color-tertiary)
+}
+.text-input:focus {
+	background-color: transparent;
+	outline: none !important;
+	border-width: 2px;
+	box-shadow: none !important;
+}
+.text-input:focus::before {
+	opacity: 0 !important;
+}
+button {
+	padding: 1rem 1rem;
+	background: var(--color-primary);
+	color: white;
+	border: none;
+	border-radius: 0.2rem;
+	font-size: 1.1rem;
+	margin: 0;
+	transition: 0.2s transform;
+}
+button:disabled {
+	opacity: 0.6;
+}
+button:enabled:hover {
+	cursor: pointer;
+	transform: scale(1.04);
+}
+button:enabled:active {
+	transform: scale(1.08);
+}
+button[data-color='secondary'] {
+	background: var(--color-secondary);
+}
