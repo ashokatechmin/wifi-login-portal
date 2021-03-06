@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
-import useWifiAPI from './Utils/useWifiAPI';
-import ProgressButton from './Components/ProgressButton';
-import Switch from './Components/Switch';
-import timeFormatter from './Utils/timeFormatter';
+import React, { useState } from 'react'
+import useWifiAPI from './Utils/useWifiAPI'
+import ProgressButton from './Components/ProgressButton'
+import Switch from './Components/Switch'
+import timeFormatter from './Utils/timeFormatter'
+import generateColor from './Utils/generateColor'
+import useAlert from './Components/useAlert'
 import './App.css'
-import generateColor from './Utils/generateColor';
-import useAlert from './Components/useAlert';
 
 export default () => {
   const alerts = useAlert()
