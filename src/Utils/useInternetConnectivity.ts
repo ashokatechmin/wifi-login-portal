@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react"
+import useOnline from "./useOnline"
 
 const CONNECTIVITY_TIMEOUT_MS = 5_000
 const CONNECTIVITY_TEST_MIN_GAP = 30_000
 
 export default (url: string) => {
+	const online = useOnline()
 	const [state, setState] = useState<'offline' | 'checking' | 'online'>('offline')
 	const [lastCheck, setLastCheck] = useState(new Date(0))
 
@@ -49,8 +51,15 @@ export default (url: string) => {
 	}, [state, lastCheck, setState])
 
 	useEffect(() => {
-		checkInternet()
-	}, [])
+		if(online) {
+			console.log('online, checking internet...')
+			setTimeout(() => {
+				checkInternet()
+			}, 4000)
+		}
+		else setState('offline')
+
+	}, [online])
 
 	return [state, checkInternet] as const 
 }

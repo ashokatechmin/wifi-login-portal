@@ -8,7 +8,7 @@ import useOnline from './useOnline'
 const delay = (ms: number) => new Promise(resolve => (
 	setTimeout(resolve, ms) // wait 1.5 seconds between each try
 ))
-
+const INTERNET_CHECK_URL = process.env.DEV === '1' ? 'https://lms.ashoka.edu.in/abcd' : '/'
 const PARSER = new DOMParser()
 const BASE_URL = new URL('http://10.1.0.100:8090')
 const MAX_EXPECTED_RESPONSE_TIME_MS = 7_000 // max time a request should take
@@ -74,7 +74,7 @@ export default () => {
 	const online = useOnline()
 	// are we connected to the outside internet
 	const [connectedInternet, checkConnectedInternet] = useInternetConnectivity(
-		'https://lms.ashoka.edu.in/abcd'
+		INTERNET_CHECK_URL
 	)
 	// are we unexpectedly offline when we should be online?
 	const [unexpectedlyOffline, setUnexpectedlyOffline] = useState(false)
@@ -257,7 +257,7 @@ export default () => {
 	}, [wifiSwitchState, online])
 
 	useEffect(() => {
-		if(connectedInternet && !unexpectedlyOffline) {
+		if(connectedInternet === 'online' && unexpectedlyOffline) {
 			setUnexpectedlyOffline(false)
 		}
 	}, [connectedInternet, unexpectedlyOffline])

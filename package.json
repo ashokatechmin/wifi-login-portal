@@ -17,8 +17,8 @@
     "web-vitals": "^1.0.1"
   },
   "scripts": {
-    "start": "PORT=8090 react-scripts start",
-    "build": "react-scripts build && gulp",
+    "start": "DEV=1 PORT=8090 react-scripts start",
+    "build": "CI=false react-scripts build && gulp",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
