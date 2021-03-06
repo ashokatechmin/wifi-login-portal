@@ -40,7 +40,7 @@ h3 {
 	/*min-width: min(22rem, 100vw);
 	background: var(--color-primary2);
 	box-shadow: 0px 0px 20px 1px rgba(107, 107, 107, 0.356);*/
-	min-width: min(23rem, 100%);
+	width: min(25rem, 100%);
 	border-radius: 0.2rem;
 	padding: 1.2rem;
 	
@@ -64,6 +64,16 @@ h3 {
 .footnote {
 	color: var(--color-tertiary);
 	font-size: 0.9rem;
+}
+
+.error-note {
+	color: var(--color-secondary);
+	font-size: 0.9rem;
+	align-self: center;
+}
+.small-note {
+	color: rgb(192, 192, 192);
+	font-size: 0.85rem !important;
 }
 
 .vertical-margin > * {
@@ -105,6 +115,9 @@ button {
 	font-size: 1.1rem;
 	margin: 0;
 	transition: 0.2s transform;
+	text-overflow: ellipsis;
+	overflow-wrap: break-word;
+	max-width: 100%;
 }
 button:disabled {
 	opacity: 0.6;
@@ -118,4 +131,8 @@ button:enabled:active {
 }
 button[data-color='secondary'] {
 	background: var(--color-secondary);
+}
+
+.wifi-switch-button {
+	transition: 0.2s all;
 }

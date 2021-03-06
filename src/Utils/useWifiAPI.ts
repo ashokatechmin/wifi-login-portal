@@ -2,6 +2,7 @@ import querystring from 'querystring'
 import { useEffect, useState } from 'react'
 import timeFormatter from './timeFormatter'
 import useLocalStorageState from './useLocalStorageState'
+import useOnline from './useOnline'
 
 const PARSER = new DOMParser()
 const BASE_URL = new URL('http://10.1.0.100:8090')
@@ -37,7 +38,6 @@ const apiRequest = async (path: string, method: 'POST' | 'GET', body: any) => {
 		}
 	)
 	const text = await result.text()
-	console.log(result)
 	return 'success'
 	/*console.log('code ', result.status)
 	// status code doesn't determine anything in this API
@@ -50,12 +50,20 @@ export type AutoLoginState = {
 	state: 'idle' | 'logging-in' | 'error' | 'inactive'
 	message?: string
 }
+export type WifiSwitchState = 'idle' | 'logging-out' | 'waiting-for-disconnect' | 'waiting-for-connect' | 'logging-in'
 
 export default () => {
 	const [lastLogin, setLastLogin] = useLocalStorageState(
 		'last-login',
 		str => str ? new Date(str) : undefined
 	)
+	const [currentAction, setCurrentAction] = useState<'logging-in' | 'logging-out'>()
+	const [takingLongTime, setTakingLongTime] = useState(false)
+	const [online, setOnline] = useOnline()
+	const [wifiSwitchState, setWifiSwitchState] = useState({
+		state: 'idle' as WifiSwitchState,
+		message: ''
+	})
 
 	const [savePassword, setSavePassword] = useLocalStorageState(
 		'save-password',
@@ -86,11 +94,15 @@ export default () => {
 			throw new Error('Password is required')
 		}
 		username = username.split('@')[0]
+		setCurrentAction('logging-in')
 		const message = await apiRequest(
 			'login.xml', 
 			'POST', 
 			{ username, password, mode: 191 }
-		)
+		).finally(() => (
+			setCurrentAction(undefined)
+		))
+
 		if(!message?.includes('success')) {
 			throw new Error(message!)
 		}
@@ -99,15 +111,42 @@ export default () => {
 		setLastUsedPassword(password)
 	}
 	const logout = async(username: string) => {
+		setCurrentAction('logging-out')
 		const message = await apiRequest(
 			'logout.xml', 
 			'POST', 
 			{ username, mode: 193 }
-		)
+		).finally(() => (
+			setCurrentAction(undefined)
+		))
 		if(!message?.includes('success')) {
 			throw new Error(message!)
 		}
 		setLastLogin(undefined)
+	}
+	const tryLogin = async(tries = 10) => {
+		while(tries > 0) {
+			await new Promise(resolve => (
+				setTimeout(resolve, 1500) // wait 1.5 seconds between each try
+			))
+			try {
+				await login(lastUsedUsername!, lastUsedPassword!)
+				setWifiSwitchState({
+					state: 'idle',
+					message: 'Done!\nClick to switch wifis again'
+				})
+				break
+			} catch(error) {
+				console.log(`error in login (tries left ${tries}): `, error)
+				if (tries <= 0) {
+					setWifiSwitchState({
+						state: 'idle',
+						message: `An Error Occurred: ${error.message}`
+					})
+				}
+			}
+			tries += 1
+		}
 	}
 
 	useEffect(() => {
@@ -160,6 +199,34 @@ export default () => {
 		}
 	}, [autoLogin, lastLogin, autoLoginState, lastUsedUsername, lastUsedPassword])
 
+	useEffect(() => {
+		if(currentAction) {
+			const timeout = setTimeout(() => (
+				setTakingLongTime(true)
+			), MAX_EXPECTED_RESPONSE_TIME_MS)
+			return () => {
+				clearTimeout(timeout)
+				setTakingLongTime(false)
+			}
+		}
+	}, [currentAction])
+
+	useEffect(() => {
+		if(wifiSwitchState.state === 'waiting-for-disconnect' && !online) {
+			setWifiSwitchState({
+				state: 'waiting-for-connect',
+				message: 'Connect to your desired wifi (Staff, Student, etc.)'
+			})
+		} else if(wifiSwitchState.state === 'waiting-for-connect' && online) {
+			setWifiSwitchState({
+				state: 'logging-in',
+				message: 'Logging you in here...'
+			})
+		} else if(wifiSwitchState.state === 'logging-in' && online) {
+			tryLogin()
+		}
+	}, [wifiSwitchState, online])
+
 	return {
 		lastLogin,
 		autoLogin,
@@ -167,6 +234,36 @@ export default () => {
 		autoLoginState,
 		lastUsedPassword,
 		lastUsedUsername,
+		currentAction,
+		takingLongTime,
+		wifiSwitchState,
+		startSwitchingWifis: () => {
+			// force the state here
+			if(wifiSwitchState.state === 'waiting-for-disconnect') {
+				setWifiSwitchState({
+					state: 'logging-in',
+					message: 'Logging you in here...'
+				})
+			} else {
+				setWifiSwitchState({
+					state: 'logging-out',
+					message: 'Logging you out from here...'
+				})
+				logout(lastUsedUsername!)
+					.then(() => (
+						setWifiSwitchState({
+							state: 'waiting-for-disconnect',
+							message: "Disconnect your wifi.\nClick here if already switched"
+						})
+					))
+					.catch(error => {
+						setWifiSwitchState({
+							state: 'idle',
+							message: `An Error Occurred: ${error.message}`
+						})
+					})
+			}
+		},
 		setSavePassword,
 		login,
 		logout,

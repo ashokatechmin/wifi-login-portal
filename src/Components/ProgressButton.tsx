@@ -1,11 +1,11 @@
 import React, { HTMLProps, useEffect, useState } from 'react';
 
 const PROGRESS_BUTTON_MAX_MOD = 5
-export default (props: HTMLProps<'button'>) => {
+export default (props: HTMLProps<'button'> & { onTaskError: (error: Error) => void }) => {
   const [working, setWorking] = useState(false)
   const [currentMod, setCurrentMod] = useState(0)
 
-  const {onClick, children} = props
+  const {onClick, children, disabled} = props
 
   const trueProps = {
     ...props,
@@ -14,13 +14,14 @@ export default (props: HTMLProps<'button'>) => {
       try {
         await onClick!(e)
       } catch(error) {
-        alert(error.message)
+        props.onTaskError(error.message)
       } finally {
         setWorking(false)
       }
     },
     children: working ? [...Array(currentMod+1)].map(() => '.').join('') : children,
-    disabled: working
+    disabled: working ? true : disabled,
+    onTaskError: undefined
   }
 
   useEffect(() => {
