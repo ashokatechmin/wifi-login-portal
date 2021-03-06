@@ -4,5 +4,6 @@ export default (ms: number) => {
 	const h = m/60
 	if(h >= 1) return Math.floor(h) + ' hours'
 	else if(m >= 1) return Math.floor(m) + ' minutes'
-	else return Math.floor(s) + ' seconds'
+	else if(s >= 10) return Math.floor(s) + ' seconds'
+	else return 'a few moments'
 }

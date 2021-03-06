@@ -41,7 +41,7 @@
     height: calc(var(--width-switch)*0.5);
     border-radius: calc(var(--width-switch)*0.5);
     transition: 0.2s;
-    background: var(--color-tertiary);
+    background: rgb(180, 180, 180);
 }
 
 .react-switch-checkbox:checked + label > span {

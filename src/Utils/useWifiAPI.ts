@@ -52,6 +52,9 @@ export type AutoLoginState = {
 }
 export type WifiSwitchState = 'idle' | 'logging-out' | 'waiting-for-disconnect' | 'waiting-for-connect' | 'logging-in'
 
+/**
+ * Manage all the logic for logging in, logging out, switching wifis, auto-login etc.
+ */
 export default () => {
 	const [lastLogin, setLastLogin] = useLocalStorageState(
 		'last-login',
