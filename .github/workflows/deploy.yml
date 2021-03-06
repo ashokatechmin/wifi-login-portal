@@ -1,0 +1,37 @@
+name: S3 Deploy
+
+on:
+  push:
+    branches:
+    - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [14.x]
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Node ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+
+    - name: Installing packages
+      run: npm i
+      
+    - name: Building application
+      run: npm run build
+
+    - name: S3 Upload
+      uses: shallwefootball/s3-upload-action@master
+      with:
+        aws_key_id: ${{ secrets.AWS_ACCESS_KEY }}
+        aws_secret_access_key: ${{ secrets.AWS_SECRET_KEY }}
+        aws_bucket: messcat-wifi
+        source_dir: 'build'
