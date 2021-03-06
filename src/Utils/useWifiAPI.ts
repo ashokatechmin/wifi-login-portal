@@ -136,7 +136,7 @@ export default () => {
 		setLastUsedUsername(username)
 		setLastUsedPassword(password)
 
-		await onLogin()
+		onLogin()
 	}
 	const logout = async(username: string) => {
 		setCurrentAction('logging-out')
