@@ -21,7 +21,7 @@
     cursor: pointer;
     width: var(--width-switch);
     height: calc(var(--width-switch)/4);
-    background: var(--color-secondary);
+    background: gray;
     border-radius: 100px;
     position: relative;
     transition: background-color .2s;

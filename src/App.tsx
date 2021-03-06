@@ -5,6 +5,7 @@ import Switch from './Components/Switch'
 import generateColor from './Utils/generateColor'
 import useAlert from './Components/useAlert'
 import cat from './Images/cat'
+import {ReactComponent as Reload} from './Images/Reload.svg'
 import './App.css'
 
 export default () => {
@@ -20,6 +21,7 @@ export default () => {
     wifiSwitchState,
     connectedInternet,
     unexpectedlyOffline,
+    checkConnectedInternet,
     startSwitchingWifis,
     logout,
     login,
@@ -42,9 +44,20 @@ export default () => {
           </div>
         </div>
         <div className='note' style={{alignSelf: 'center'}}>
-          Internet: <span className={connectedInternet}>{connectedInternet}</span>
+          <div className='flex-row'>
+          Internet: <span className={connectedInternet}>&nbsp;{connectedInternet}</span>
+          {
+            connectedInternet !== 'checking' && (
+              <div className='checker' onClick={checkConnectedInternet}>
+                <Reload />
+              </div>
+            )
+          }
+          </div>
           {
             unexpectedlyOffline && (
+              <>
+              <br/>
               <div className='unexpectedly-offline'>
                 Looks like you're offline when you should be online<br/>
                 1. Check your email/password and try again<br/>
@@ -52,6 +65,7 @@ export default () => {
                 So you'll have to logout from there and then login here. 
                 You can do all that from this portal itself.
               </div>
+              </>
             )
           }
         </div>

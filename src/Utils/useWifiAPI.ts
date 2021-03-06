@@ -274,6 +274,7 @@ export default () => {
 		wifiSwitchState,
 		connectedInternet,
 		unexpectedlyOffline,
+		checkConnectedInternet,
 		startSwitchingWifis: () => {
 			// force the state here
 			if(wifiSwitchState.state === 'waiting-for-disconnect') {

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import useOnline from "./useOnline"
 
 const CONNECTIVITY_TIMEOUT_MS = 5_000
@@ -8,6 +8,7 @@ export default (url: string) => {
 	const online = useOnline()
 	const [state, setState] = useState<'offline' | 'checking' | 'online'>('offline')
 	const [lastCheck, setLastCheck] = useState(new Date(0))
+	const firstCheckDone = useRef(false)
 
 	const checkInternet = async() => {
 		setState('checking')
@@ -53,13 +54,17 @@ export default (url: string) => {
 	useEffect(() => {
 		if(online) {
 			console.log('online, checking internet...')
-			setTimeout(() => {
+			if(firstCheckDone.current) {
+				setTimeout(() => {
+					checkInternet()
+				}, 4000)
+			} else {
 				checkInternet()
-			}, 4000)
+				firstCheckDone.current = true
+			}
 		}
 		else setState('offline')
-
 	}, [online])
-
+	
 	return [state, checkInternet] as const 
 }
