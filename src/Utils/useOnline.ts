@@ -15,5 +15,5 @@ export default () => {
 		}
 	}, [setOnline])
 
-	return [online, setOnline] as const
+	return online
 }

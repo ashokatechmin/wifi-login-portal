@@ -2,9 +2,9 @@ import React, { useState } from 'react'
 import useWifiAPI from './Utils/useWifiAPI'
 import ProgressButton from './Components/ProgressButton'
 import Switch from './Components/Switch'
-import timeFormatter from './Utils/timeFormatter'
 import generateColor from './Utils/generateColor'
 import useAlert from './Components/useAlert'
+import cat from './Images/cat'
 import './App.css'
 
 export default () => {
@@ -15,10 +15,11 @@ export default () => {
     savePassword,
     autoLogin,
     autoLoginState,
-    lastLogin,
     currentAction,
     takingLongTime,
     wifiSwitchState,
+    connectedInternet,
+    unexpectedlyOffline,
     startSwitchingWifis,
     logout,
     login,
@@ -34,11 +35,25 @@ export default () => {
       {alerts.alert}
       <div className='login-card vertical-margin'>
         <div className='title'>
-          <img src={require('./Images/cat.jpg').default} />
+          <img src={cat} />
           <div className='flex-col' style={{marginLeft: '1rem'}}>
             <div className='heading'>Messcat</div>
             <div className='footnote'>Wifi Portal for Ashoka</div>
           </div>
+        </div>
+        <div className='note' style={{alignSelf: 'center'}}>
+          Internet: <span className={connectedInternet}>{connectedInternet}</span>
+          {
+            unexpectedlyOffline && (
+              <div className='unexpectedly-offline'>
+                Looks like you're offline when you should be online<br/>
+                1. Check your email/password and try again<br/>
+                2. You might be logged onto some other wifi (guest, student, staff). 
+                So you'll have to logout from there and then login here. 
+                You can do all that from this portal itself.
+              </div>
+            )
+          }
         </div>
         <div className='flex-col vertical-margin'>
           <input 
@@ -53,12 +68,6 @@ export default () => {
             placeholder='Password...' 
             onChange={e => setPassword(e.target.value)}/>
 
-          { lastLogin && !currentAction && (
-              <span className='footnote' style={{alignSelf: 'center'}}>
-                Last logged in { timeFormatter(Date.now() - lastLogin.getTime()) } ago
-              </span>
-            ) 
-          }
           {
             !!currentAction && takingLongTime && (
               <span className='error-note'>

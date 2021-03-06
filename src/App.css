@@ -136,3 +136,25 @@ button[data-color='secondary'] {
 .wifi-switch-button {
 	transition: 0.2s all;
 }
+
+.note {
+	font-size: 1;
+	align-self: center;
+	text-align: center;
+}
+.offline {
+	color: var(--color-secondary);
+}
+.checking {
+	color: rgb(204, 204, 12);
+}
+.online {
+	color: green;
+}
+.unexpectedly-offline {
+	align-self: flex-start;
+	font-size: 0.9rem;
+	padding: 0.5rem;
+	line-height: 1.5rem;
+	color: var(--color-tertiary);
+}

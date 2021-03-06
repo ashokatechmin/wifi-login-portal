@@ -1,8 +1,13 @@
 import querystring from 'querystring'
 import { useEffect, useState } from 'react'
 import timeFormatter from './timeFormatter'
+import useInternetConnectivity from './useInternetConnectivity'
 import useLocalStorageState from './useLocalStorageState'
 import useOnline from './useOnline'
+
+const delay = (ms: number) => new Promise(resolve => (
+	setTimeout(resolve, ms) // wait 1.5 seconds between each try
+))
 
 const PARSER = new DOMParser()
 const BASE_URL = new URL('http://10.1.0.100:8090')
@@ -56,13 +61,23 @@ export type WifiSwitchState = 'idle' | 'logging-out' | 'waiting-for-disconnect' 
  * Manage all the logic for logging in, logging out, switching wifis, auto-login etc.
  */
 export default () => {
+	// date for last login
 	const [lastLogin, setLastLogin] = useLocalStorageState(
 		'last-login',
 		str => str ? new Date(str) : undefined
 	)
+	// what we doing right now
 	const [currentAction, setCurrentAction] = useState<'logging-in' | 'logging-out'>()
+	// is it taking a long time to fetch?
 	const [takingLongTime, setTakingLongTime] = useState(false)
-	const [online, setOnline] = useOnline()
+	// are we on some internet
+	const online = useOnline()
+	// are we connected to the outside internet
+	const [connectedInternet, checkConnectedInternet] = useInternetConnectivity(
+		'https://lms.ashoka.edu.in/abcd'
+	)
+	// are we unexpectedly offline when we should be online?
+	const [unexpectedlyOffline, setUnexpectedlyOffline] = useState(false)
 	const [wifiSwitchState, setWifiSwitchState] = useState({
 		state: 'idle' as WifiSwitchState,
 		message: ''
@@ -89,6 +104,14 @@ export default () => {
 		savePassword
 	)
 
+	const onLogin = async() => {
+		await delay(2000)
+		const connected = await checkConnectedInternet()
+		if(!connected) {
+			setUnexpectedlyOffline(true)
+		}
+	}
+
 	const login = async(username: string, password: string) => {
 		if(!username) {
 			throw new Error('Username/email is required')
@@ -112,6 +135,8 @@ export default () => {
 		setLastLogin(new Date())
 		setLastUsedUsername(username)
 		setLastUsedPassword(password)
+
+		await onLogin()
 	}
 	const logout = async(username: string) => {
 		setCurrentAction('logging-out')
@@ -126,6 +151,7 @@ export default () => {
 			throw new Error(message!)
 		}
 		setLastLogin(undefined)
+		checkConnectedInternet()
 	}
 	const tryLogin = async(tries = 10) => {
 		while(tries > 0) {
@@ -230,6 +256,12 @@ export default () => {
 		}
 	}, [wifiSwitchState, online])
 
+	useEffect(() => {
+		if(connectedInternet && !unexpectedlyOffline) {
+			setUnexpectedlyOffline(false)
+		}
+	}, [connectedInternet, unexpectedlyOffline])
+
 	return {
 		lastLogin,
 		autoLogin,
@@ -240,6 +272,8 @@ export default () => {
 		currentAction,
 		takingLongTime,
 		wifiSwitchState,
+		connectedInternet,
+		unexpectedlyOffline,
 		startSwitchingWifis: () => {
 			// force the state here
 			if(wifiSwitchState.state === 'waiting-for-disconnect') {
