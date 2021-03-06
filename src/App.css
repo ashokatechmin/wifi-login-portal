@@ -40,7 +40,7 @@ h3 {
 	/*min-width: min(22rem, 100vw);
 	background: var(--color-primary2);
 	box-shadow: 0px 0px 20px 1px rgba(107, 107, 107, 0.356);*/
-	width: min(25rem, 100%);
+	width: min(25rem, 95%);
 	border-radius: 0.2rem;
 	padding: 1.2rem;
 	

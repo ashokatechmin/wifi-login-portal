@@ -7,7 +7,7 @@
 	font-size: larger;
 	padding: 1rem;
 	top: 2rem;
-	width: min(25rem, 90vw);
+	width: min(25rem, 90%);
 	min-height: 8rem;
 	border-radius: 0.25rem;
 	padding: 1.2rem;
