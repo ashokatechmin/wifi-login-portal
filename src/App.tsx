@@ -63,10 +63,12 @@ export default () => {
               <br/>
               <div className='unexpectedly-offline'>
                 Looks like you're offline when you should be online<br/>
-                1. Check your email/password and try again<br/>
-                2. You might be logged onto some other wifi (guest, student, staff). 
-                So you'll have to logout from there and then login here. 
-                You can do all that from this portal itself.
+                1. Ensure the email/password are correct and try again<br/>
+                2. You might be logged onto some other wifi (guest, student, staff) 
+                  breaching the limit of 3 devices. 
+                  So you'll have to logout from there and then login here. <br/>
+                  You can do all that from this portal itself.
+                3. If the above two steps don't work, get ready to mail <a href='mailto:it.helpdesk@ashoka.edu.in'>IT</a>
               </div>
               </>
             )
