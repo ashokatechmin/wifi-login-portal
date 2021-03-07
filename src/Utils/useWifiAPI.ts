@@ -8,10 +8,10 @@ import useOnline from './useOnline'
 const delay = (ms: number) => new Promise(resolve => (
 	setTimeout(resolve, ms) // wait 1.5 seconds between each try
 ))
-const INTERNET_CHECK_URL = process.env.DEV === '1' ? 'https://lms.ashoka.edu.in/abcd' : '/'
+const INTERNET_CHECK_URL = process.env.NODE_ENV === 'development' ? 'https://lms.ashoka.edu.in/abcd' : '/'
 const PARSER = new DOMParser()
 const BASE_URL = new URL('http://10.1.0.100:8090')
-const MAX_EXPECTED_RESPONSE_TIME_MS = 7_000 // max time a request should take
+const MAX_EXPECTED_RESPONSE_TIME_MS = 10_000 // max time a request should take
 const AUTO_LOGIN_INTERVAL_MS = 60*60*1000 // interval for auto login (1 hour)
 
 // extract the "message" from the API xml response
@@ -25,7 +25,8 @@ const getMessage = (xmlText: string) => {
 }
 /** fetch data from the wifi API */
 const apiRequest = async (path: string, method: 'POST' | 'GET', body: any) => {
-	
+	const controller = new AbortController()
+	const timeout = setTimeout(() => controller.abort(), MAX_EXPECTED_RESPONSE_TIME_MS)
 	const result = await fetch(
 		new URL(path, BASE_URL).toString(),
 		{
@@ -39,9 +40,21 @@ const apiRequest = async (path: string, method: 'POST' | 'GET', body: any) => {
 			mode: 'no-cors',
 			headers: {
 				'content-type': 'application/x-www-form-urlencoded'
-			}
+			},
+			signal: controller.signal
 		}
-	)
+	).catch(error => {
+		if(error.name === 'AbortError') {
+			throw new Error(
+				'Hmmm, it took way too long to log you in/out.<br/>'+
+                "Try <a href='/'>refreshing the page</a>, if that does not work<br/>"+
+                "email IT by clicking <a href='mailto:it.helpdesk@ashoka.edu.in'>here</a>"
+			)
+		}
+		throw error
+	}).finally(() => (
+		clearTimeout(timeout)
+	))
 	const text = await result.text()
 	return 'success'
 	/*console.log('code ', result.status)
@@ -68,8 +81,6 @@ export default () => {
 	)
 	// what we doing right now
 	const [currentAction, setCurrentAction] = useState<'logging-in' | 'logging-out'>()
-	// is it taking a long time to fetch?
-	const [takingLongTime, setTakingLongTime] = useState(false)
 	// are we on some internet
 	const online = useOnline()
 	// are we connected to the outside internet
@@ -229,18 +240,6 @@ export default () => {
 	}, [autoLogin, lastLogin, autoLoginState, lastUsedUsername, lastUsedPassword])
 
 	useEffect(() => {
-		if(currentAction) {
-			const timeout = setTimeout(() => (
-				setTakingLongTime(true)
-			), MAX_EXPECTED_RESPONSE_TIME_MS)
-			return () => {
-				clearTimeout(timeout)
-				setTakingLongTime(false)
-			}
-		}
-	}, [currentAction])
-
-	useEffect(() => {
 		if(wifiSwitchState.state === 'waiting-for-disconnect' && !online) {
 			setWifiSwitchState({
 				state: 'waiting-for-connect',
@@ -270,7 +269,6 @@ export default () => {
 		lastUsedPassword,
 		lastUsedUsername,
 		currentAction,
-		takingLongTime,
 		wifiSwitchState,
 		connectedInternet,
 		unexpectedlyOffline,

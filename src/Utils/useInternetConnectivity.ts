@@ -17,13 +17,16 @@ export default (url: string) => {
 			const controller = new AbortController()
 			const timeout = setTimeout(() => controller.abort(), CONNECTIVITY_TIMEOUT_MS)
 
-			await fetch(url, {
+			const fetchResult = await fetch(url, {
 				method: 'head',
 				mode: 'no-cors',
 				cache: 'no-cache',
 				signal: controller.signal
 			})
 			clearTimeout(timeout)
+			if(fetchResult.statusText.toLocaleLowerCase().includes('please login')) {
+				throw new Error('Require login')
+			}
 			setState('online')
 			result = true
 		} catch(error) {

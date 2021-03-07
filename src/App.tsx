@@ -17,7 +17,6 @@ export default () => {
     autoLogin,
     autoLoginState,
     currentAction,
-    takingLongTime,
     wifiSwitchState,
     connectedInternet,
     unexpectedlyOffline,
@@ -31,6 +30,10 @@ export default () => {
 
   const [username, setUsername] = useState(lastUsedUsername)
   const [password, setPassword] = useState(lastUsedPassword)
+
+  const showError = (error: Error) => {
+    alerts.error(<div dangerouslySetInnerHTML={{ __html: error.message }}/>)
+  }
 
   return (
     <div className='App flex-col'>
@@ -81,17 +84,7 @@ export default () => {
             type='password' 
             placeholder='Password...' 
             onChange={e => setPassword(e.target.value)}/>
-
-          {
-            !!currentAction && takingLongTime && (
-              <span className='error-note'>
-                Hmmm, it's taking a long time to log {currentAction === 'logging-in' ? 'in' : 'out'}.<br/>
-                Try <a href='/'>refreshing the page</a>, if that does not work<br/>
-                email IT by clicking <a href='mailto:it.helpdesk@ashoka.edu.in'>here</a>
-              </span>
-            )
-          }
-          
+                    
           <div className='flex-col overall-margin'>
            
             <div className='flex-col'>
@@ -119,7 +112,7 @@ export default () => {
 
             <ProgressButton 
               disabled={currentAction === 'logging-in'}
-              onTaskError={err => alerts.error(`An Error Occurred: ${err.message}`)}
+              onTaskError={showError}
               onClick={async() => {
                 await login(username!, password!)
                 alerts.show(
@@ -135,7 +128,7 @@ export default () => {
 
             <ProgressButton 
               disabled={currentAction === 'logging-out'}
-              onTaskError={err => alerts.error(`An Error Occurred: ${err.message}`)}
+              onTaskError={showError}
               onClick={async () => {
                 await logout(username!)
                 alerts.show('Logged out successfully!', 2000)

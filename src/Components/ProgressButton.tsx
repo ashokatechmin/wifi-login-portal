@@ -14,7 +14,7 @@ export default (props: HTMLProps<'button'> & { onTaskError: (error: Error) => vo
       try {
         await onClick!(e)
       } catch(error) {
-        props.onTaskError(error.message)
+        props.onTaskError(error)
       } finally {
         setWorking(false)
       }
